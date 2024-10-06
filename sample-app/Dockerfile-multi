@@ -31,7 +31,7 @@ CMD ["python", "GraphAnalysis.py", "obj_dependency_data.csv"]
 FROM initial_b AS entrypoint_b
 
 ENTRYPOINT ["python", "GraphAnalysis.py"]
-CMD ["obj_dependency_data.csv"]
+CMD ["obj_dependency_data_new.csv"]
 
 
 FROM entrypoint_b AS volume_b
