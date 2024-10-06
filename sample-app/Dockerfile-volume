@@ -1,0 +1,9 @@
+FROM lidiyahanicheva/sample-app:v1
+
+USER 0
+
+RUN mkdir -p /home/webservice/shared
+RUN chown -R webservice:webservice /home/webservice/shared
+RUN chmod 777 /home/webservice/shared
+
+USER webservice:webservice
