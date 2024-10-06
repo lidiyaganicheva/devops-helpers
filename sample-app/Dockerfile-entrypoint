@@ -1,4 +1,4 @@
 FROM lidiyahanicheva/sample-app:v1
 
 ENTRYPOINT ["python", "GraphAnalysis.py"]
-CMD ["obj_dependency_data_test.csv"]
+CMD ["obj_dependency_data_new.csv"]
