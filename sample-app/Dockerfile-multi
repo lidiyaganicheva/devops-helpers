@@ -1,0 +1,53 @@
+FROM python:3.7-slim AS initial_b
+
+# The WORKDIR instruction sets the working directory for any RUN, CMD, ENTRYPOINT, COPY and ADD instructions that follow it in the Dockerfile
+# this will create /app directory in Docker image
+WORKDIR /app
+
+# add group and user to run a container
+RUN groupadd -r webservice && useradd --no-log-init -r -g webservice webservice
+
+# this will install some packages
+RUN pip install networkx dash plotly
+
+# this will copy application code to working directory
+#COPY . /app/
+COPY . .
+
+USER webservice:webservice
+
+# indicates the ports on which a container listens for connections
+EXPOSE 8050
+
+# this command is started when container is ran
+# this is a form with PID 1 issues
+#CMD python GraphAnalysis.py obj_dependency_data.csv
+
+# this command is started when container is ran
+# below is recommended form of CMD
+CMD ["python", "GraphAnalysis.py", "obj_dependency_data.csv"]
+
+
+FROM initial_b AS entrypoint_b
+
+ENTRYPOINT ["python", "GraphAnalysis.py"]
+CMD ["obj_dependency_data.csv"]
+
+
+FROM entrypoint_b AS volume_b
+
+USER 0
+
+RUN mkdir -p /home/webservice/shared
+RUN chown -R webservice:webservice /home/webservice/shared
+RUN chmod 777 /home/webservice/shared
+
+USER webservice:webservice
+
+FROM volume_b AS telnet_b
+
+USER 0
+RUN apt-get update && apt-get install -y telnet
+USER webservice
+
+
