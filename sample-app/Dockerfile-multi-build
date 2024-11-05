@@ -1,19 +1,18 @@
 # Stage 1: Base Image
 FROM python:3.10-alpine AS builder
 
+WORKDIR /app
+
 # Use venv to keep all compiled binaries in one place
 RUN python -m venv /venv
 
 # Make sure we use the virtualenv:
 ENV PATH="/venv/bin:$PATH"
 
-COPY . .
+COPY ./requirements.txt .
 
 # Install requirements
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Install busybox-extras (includes telnet)
-RUN apk update && apk add --no-cache busybox-extras
 
 # Create folder to attach shared volume
 RUN mkdir -p /app/shared
@@ -24,12 +23,16 @@ RUN chmod 755 /app/shared
 # Stage 2: Final Image
 FROM python:3.10-alpine
 
-
 WORKDIR /app
 
 COPY --from=builder /venv /venv
+COPY . /app
+
 
 ENV PATH="/venv/bin:$PATH"
+
+# Install busybox-extras again to ensure telnet is available in the final image
+RUN apk update && apk add --no-cache busybox-extras
 
 # add group and user to run a container
 RUN addgroup -S webservice && adduser -S -G webservice webservice
@@ -43,3 +46,4 @@ EXPOSE 8050
 
 ENTRYPOINT ["python", "GraphAnalysis.py"]
 CMD ["obj_dependency_data_new.csv"]
+
